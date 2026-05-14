@@ -708,6 +708,28 @@
     </table>
   </div>
 
+  <!-- Table III: SynBody Rendering -->
+  <h3 style="font-size:0.9rem;color:var(--text);margin-bottom:0.8rem;margin-top:2rem;" class="reveal">Rendering Quality — SynBody Dataset</h3>
+  <div class="table-wrap reveal">
+    <table>
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th class="arrow-up">SSIM ↑</th>
+          <th class="arrow-up">PSNR ↑</th>
+          <th class="arrow">LPIPS ↓</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>NVdiffrec</td><td>0.926</td><td>21.84</td><td>0.085</td></tr>
+        <tr><td>MobileNeRF</td><td>0.935</td><td>23.73</td><td>0.081</td></tr>
+        <tr><td>Neural Body</td><td>0.935</td><td>24.11</td><td>0.079</td></tr>
+        <tr><td>HumanNeRF</td><td>0.937</td><td>25.69</td><td>0.078</td></tr>
+        <tr class="ours"><td>Ours</td><td class="best">0.938</td><td class="best">26.13</td><td class="best">0.075</td></tr>
+      </tbody>
+    </table>
+  </div>
+
   <!-- Qualitative -->
   <h2 class="section-title reveal" style="margin-top:3rem;">Qualitative Comparison</h2>
   <p class="reveal">Comparison of geometric reconstruction quality across methods. Our approach recovers body structures with higher fidelity especially in complex topology regions.</p>
@@ -727,21 +749,29 @@
     <table>
       <thead>
         <tr>
-          <th>Measurement</th>
+          <th>Measurement (cm)</th>
           <th>Ground Truth</th>
-          <th class="ours-label" style="color:var(--accent)">Ours</th>
+          <th style="color:var(--accent)">Ours</th>
           <th>SMPL-X</th>
           <th>SHAPY</th>
         </tr>
       </thead>
       <tbody>
         <tr><td>Head Width</td><td>19.21±2.15</td><td class="best">18.91±2.36</td><td>17.39±3.97</td><td>17.82±3.03</td></tr>
+        <tr><td>Head Thickness</td><td>20.84±2.35</td><td class="best">20.64±2.59</td><td>18.95±3.89</td><td>19.46±3.15</td></tr>
         <tr><td>Neck Width</td><td>13.73±1.87</td><td class="best">13.98±1.95</td><td>12.40±1.89</td><td>12.89±2.03</td></tr>
+        <tr><td>Neck Thickness</td><td>14.59±1.90</td><td class="best">14.72±1.93</td><td>12.63±1.81</td><td>13.95±1.97</td></tr>
         <tr><td>Shoulder Width</td><td>41.92±4.59</td><td class="best">42.66±5.87</td><td>39.72±5.95</td><td>40.98±5.63</td></tr>
-        <tr><td>Right Upper Arm</td><td>31.38±3.97</td><td class="best">31.96±4.19</td><td>29.03±4.47</td><td>30.58±4.36</td></tr>
-        <tr><td>Right Thigh</td><td>44.95±5.18</td><td class="best">43.89±5.03</td><td>42.90±5.93</td><td>43.93±5.68</td></tr>
-        <tr class="ours"><td><strong>Avg Accuracy</strong></td><td>—</td><td class="best"><strong>94.87±6.81</strong></td><td>88.35±8.93</td><td>90.95±7.67</td></tr>
-        <tr class="ours"><td><strong>CoV (%)</strong></td><td>—</td><td class="best"><strong>7.18</strong></td><td>10.11</td><td>8.43</td></tr>
+        <tr><td>Right Upper Arm Length</td><td>31.38±3.97</td><td class="best">31.96±4.19</td><td>29.03±4.47</td><td>30.58±4.36</td></tr>
+        <tr><td>Left Upper Arm Length</td><td>31.41±4.02</td><td class="best">31.91±4.48</td><td>28.96±5.01</td><td>30.19±4.84</td></tr>
+        <tr><td>Right Forearm Length</td><td>25.97±3.81</td><td class="best">26.18±3.96</td><td>27.35±4.23</td><td>26.92±4.25</td></tr>
+        <tr><td>Left Forearm Length</td><td>25.89±3.84</td><td class="best">26.12±3.95</td><td>27.21±4.16</td><td>26.88±4.06</td></tr>
+        <tr><td>Right Thigh Length</td><td>44.95±5.18</td><td class="best">43.89±5.03</td><td>42.90±5.93</td><td>43.93±5.68</td></tr>
+        <tr><td>Left Thigh Length</td><td>43.79±5.11</td><td class="best">43.23±4.98</td><td>42.86±5.64</td><td>42.99±5.31</td></tr>
+        <tr><td>Right Shank Length</td><td>36.13±4.46</td><td class="best">36.51±4.60</td><td>35.66±5.07</td><td>36.01±4.96</td></tr>
+        <tr><td>Left Shank Length</td><td>36.49±4.32</td><td class="best">37.13±4.85</td><td>36.95±5.13</td><td>37.06±4.67</td></tr>
+        <tr class="ours"><td><strong>Average Accuracy</strong></td><td>—</td><td class="best"><strong>94.87±6.81</strong></td><td>88.35±8.93</td><td>90.95±7.67</td></tr>
+        <tr class="ours"><td><strong>Coeff. of Variation (%)</strong></td><td>—</td><td class="best"><strong>7.18</strong></td><td>10.11</td><td>8.43</td></tr>
       </tbody>
     </table>
   </div>
