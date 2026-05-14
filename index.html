@@ -603,7 +603,7 @@
   <div class="figure-block reveal" style="margin-top:2rem;">
     <img src="static/images/teaser.png" alt="Teaser: reconstructed human body meshes" style="width:100%; display:block;">
     <p class="figure-caption">
-      <strong>Figure 1.</strong> Our pipeline reconstructs anthropometrically accurate 3D human body meshes with high-quality textures from multi-view RGB images. Results are compatible with standard graphics software and hardware. (Faces are masked to protect subject identity.)
+      Our pipeline reconstructs anthropometrically accurate 3D human body meshes with high-quality textures from multi-view RGB images. Results are compatible with standard graphics software and hardware. (Faces are masked to protect subject identity.)
     </p>
   </div>
 
@@ -612,14 +612,14 @@
 <!-- METHOD -->
 <section id="method">
   <p class="section-label reveal">Method</p>
-  <h2 class="section-title reveal">Framework Overview</h2>
+  <h2 class="section-title reveal">Framework Design</h2>
   <p class="reveal">Our two-stage pipeline first trains a body-structure-guided NeRF from multi-view images, then extracts and refines an explicit textured mesh through differentiable rendering and iterative face-density optimization.</p>
 
   <div class="figure-block reveal">
     <div style="background:#2a3142; border-radius: 16px 16px 0 0;">
     <img src="static/images/pipeline.png" alt="Framework overview" style="width:100%; display:block; padding: 1.5rem;"></div>
     <p class="figure-caption">
-      <strong>Figure 2.</strong> Overview of our framework. A NeRF is trained from multi-view human body images to obtain an implicit 3D representation. Color and density features are decomposed and processed by an appearance model and a geometry model. The refined human body mesh is then validated via 3D body measurement.
+      <strong>Overview of our framework.</strong> Overview of our framework. A NeRF is trained from multi-view human body images to obtain an implicit 3D representation. Color and density features are decomposed and processed by an appearance model and a geometry model. The refined human body mesh is then validated via 3D body measurement.
     </p>
   </div>
 
@@ -687,8 +687,8 @@
       <thead>
         <tr>
           <th>Method</th>
-          <th class="arrow">People Snapshot</th>
-          <th class="arrow">SynBody</th>
+          <th>People Snapshot</th>
+          <th>SynBody</th>
         </tr>
       </thead>
       <tbody>
@@ -708,9 +708,9 @@
       <thead>
         <tr>
           <th>Method</th>
-          <th class="arrow-up">SSIM ↑</th>
-          <th class="arrow-up">PSNR ↑</th>
-          <th class="arrow">LPIPS ↓</th>
+          <th>SSIM ↑</th>
+          <th>PSNR ↑</th>
+          <th>LPIPS ↓</th>
         </tr>
       </thead>
       <tbody>
@@ -730,9 +730,9 @@
       <thead>
         <tr>
           <th>Method</th>
-          <th class="arrow-up">SSIM ↑</th>
-          <th class="arrow-up">PSNR ↑</th>
-          <th class="arrow">LPIPS ↓</th>
+          <th>SSIM ↑</th>
+          <th>PSNR ↑</th>
+          <th>LPIPS ↓</th>
         </tr>
       </thead>
       <tbody>
@@ -752,7 +752,7 @@
   <div class="figure-block reveal">
     <img src="static/images/comparison.png" alt="Geometric reconstruction comparison: NeuS, NVdiffrec, Neural Body, HumanNeRF, Ours, Ground Truth" style="width:100%; display:block;">
     <p class="figure-caption">
-      <strong>Figure 5.</strong> Geometric reconstruction quality comparison. (a) NeuS &nbsp;(b) NVdiffrec &nbsp;(c) Neural Body &nbsp;(d) HumanNeRF &nbsp;(e) Ours &nbsp;(f) Ground Truth. Our approach recovers body structures with higher fidelity, especially in complex topology regions.
+      <strong>Geometric reconstruction quality comparison.</strong> (a) NeuS &nbsp;(b) NVdiffrec &nbsp;(c) Neural Body &nbsp;(d) HumanNeRF &nbsp;(e) Ours &nbsp;(f) Ground Truth. Our approach recovers body structures with higher fidelity, especially in complex topology regions.
     </p>
   </div>
 
