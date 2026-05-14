@@ -601,8 +601,9 @@
   <h2 class="section-title reveal">Framework Overview</h2>
   <p class="reveal">Our two-stage pipeline first trains a body-structure-guided NeRF from multi-view images, then extracts and refines an explicit textured mesh through differentiable rendering and iterative face-density optimization.</p>
 
-  <div class="figure-block reveal" style="background:#f0f4f8;">
-    <img src="static/images/pipeline.png" alt="Framework overview" style="width:100%; display:block; padding: 1.5rem;">
+  <div class="figure-block reveal">
+    <div style="background:#2a3142; border-radius: 16px 16px 0 0;">
+    <img src="static/images/pipeline.png" alt="Framework overview" style="width:100%; display:block; padding: 1.5rem;"></div>
     <p class="figure-caption">
       <strong>Figure 2.</strong> Overview of our framework. A NeRF is trained from multi-view human body images to obtain an implicit 3D representation. Color and density features are decomposed and processed by an appearance model and a geometry model. The refined human body mesh is then validated via 3D body measurement.
     </p>
