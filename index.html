@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anthropometrically Accurate Human Mesh Reconstruction via Body-Structured NeRF</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --surface: #13161e;
+      --surface2: #1a1e2a;
+      --border: rgba(255,255,255,0.07);
+      --accent: #7eb8f7;
+      --accent2: #a78bfa;
+      --accent3: #34d399;
+      --text: #e8eaf0;
+      --text-dim: #8892a4;
+      --text-dimmer: #4a5568;
+      --glow: rgba(126,184,247,0.15);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── HERO GRADIENT ── */
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(126,184,247,0.12) 0%, transparent 70%),
+                  radial-gradient(ellipse 50% 40% at 80% 50%, rgba(167,139,250,0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* ── HEADER / NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(13,15,20,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+    }
+    .nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+    }
+    .nav-links { display: flex; gap: 1.8rem; }
+    .nav-links a {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-dim);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      min-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 6rem 2rem 4rem;
+      overflow: hidden;
+    }
+
+    .venue-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 1rem;
+      border: 1px solid rgba(126,184,247,0.3);
+      border-radius: 100px;
+      font-size: 0.72rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      background: rgba(126,184,247,0.06);
+      margin-bottom: 2rem;
+      animation: fadeUp 0.6s ease both;
+    }
+    .venue-badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; } 50% { opacity: 0.3; }
+    }
+
+    h1.paper-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      line-height: 1.15;
+      max-width: 900px;
+      margin-bottom: 2rem;
+      background: linear-gradient(135deg, #e8eaf0 30%, var(--accent) 80%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+
+    .authors {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.4rem 1.2rem;
+      margin-bottom: 0.6rem;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+    .author {
+      font-size: 1rem;
+      color: var(--text);
+      font-weight: 400;
+    }
+    .author sup { color: var(--accent); font-size: 0.7rem; }
+
+    .affiliation {
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      margin-bottom: 2.5rem;
+      animation: fadeUp 0.6s 0.25s ease both;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-bottom: 3rem;
+      animation: fadeUp 0.6s 0.35s ease both;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.4rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #0d0f14;
+    }
+    .btn-primary:hover { background: #a8d0ff; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(126,184,247,0.3); }
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+
+    /* ── TEASER ── */
+    .teaser {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      background: var(--surface);
+      animation: fadeUp 0.6s 0.45s ease both;
+    }
+    .teaser-placeholder {
+      aspect-ratio: 16/6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1rem;
+      background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+      color: var(--text-dim);
+      font-size: 0.85rem;
+    }
+    .teaser-placeholder i { font-size: 2.5rem; color: var(--text-dimmer); }
+    .teaser-caption {
+      padding: 0.8rem 1.2rem;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      text-align: center;
+      border-top: 1px solid var(--border);
+      line-height: 1.5;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── SECTIONS ── */
+    section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 5rem 2rem;
+    }
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.8rem;
+    }
+    h2.section-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      margin-bottom: 1.5rem;
+      color: var(--text);
+    }
+    p { color: var(--text-dim); margin-bottom: 1rem; font-size: 0.95rem; }
+
+    /* ── DIVIDER ── */
+    .divider {
+      max-width: 900px;
+      margin: 0 auto;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+    }
+
+    /* ── ABSTRACT ── */
+    .abstract-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .abstract-box::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+    }
+    .abstract-box p { font-size: 0.95rem; line-height: 1.8; color: var(--text-dim); margin: 0; }
+
+    /* ── PIPELINE / FRAMEWORK ── */
+    .figure-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      margin: 2rem 0;
+    }
+    .figure-placeholder {
+      aspect-ratio: 16/7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 0.8rem;
+      background: var(--surface2);
+      color: var(--text-dimmer);
+      font-size: 0.8rem;
+    }
+    .figure-placeholder i { font-size: 2rem; }
+    .figure-caption {
+      padding: 0.9rem 1.5rem;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      border-top: 1px solid var(--border);
+      line-height: 1.6;
+    }
+    .figure-caption strong { color: var(--text); }
+
+    /* ── RESULTS GRID ── */
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+    .result-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .result-card:hover { border-color: rgba(126,184,247,0.3); transform: translateY(-3px); }
+    .result-card-img {
+      aspect-ratio: 4/3;
+      background: var(--surface2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-dimmer);
+      font-size: 0.75rem;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .result-card-img i { font-size: 1.5rem; }
+    .result-card-label {
+      padding: 0.6rem 1rem;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── METRICS ── */
+    .metrics-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .metric-value {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2.2rem;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+    .metric-label { font-size: 0.75rem; color: var(--text-dim); line-height: 1.4; }
+    .metric-badge {
+      display: inline-block;
+      margin-top: 0.6rem;
+      padding: 0.2rem 0.6rem;
+      background: rgba(52,211,153,0.1);
+      border: 1px solid rgba(52,211,153,0.3);
+      border-radius: 100px;
+      font-size: 0.65rem;
+      color: var(--accent3);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ── TABLE ── */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin: 2rem 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    thead {
+      background: var(--surface2);
+    }
+    th {
+      padding: 0.9rem 1.2rem;
+      text-align: left;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 0.85rem 1.2rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-dim);
+    }
+    tr:last-child td { border-bottom: none; }
+    tr.ours td { color: var(--text); background: rgba(126,184,247,0.04); }
+    tr.ours td:first-child { color: var(--accent); font-weight: 600; }
+    .best { color: var(--accent3) !important; font-weight: 600; }
+    td.metric-arrow::before { content: '↓ '; font-size: 0.7rem; color: var(--text-dimmer); }
+    th.arrow::after { content: ' ↓'; font-size: 0.65rem; }
+    th.arrow-up::after { content: ' ↑'; font-size: 0.65rem; }
+
+    /* ── COMPARISON ── */
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0.5rem;
+      margin: 2rem 0;
+    }
+    .comp-col { display: flex; flex-direction: column; gap: 0.5rem; }
+    .comp-header {
+      text-align: center;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      padding: 0.4rem;
+      background: var(--surface);
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .comp-header.ours-label { color: var(--accent); border-color: rgba(126,184,247,0.3); }
+    .comp-img {
+      aspect-ratio: 3/5;
+      background: var(--surface2);
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-dimmer);
+      font-size: 0.6rem;
+    }
+
+    /* ── BibTeX ── */
+    .bibtex-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .bibtex-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.9rem 1.2rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+    .bibtex-header span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+    .copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.3rem 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+    pre {
+      padding: 1.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      line-height: 1.7;
+      color: var(--text-dim);
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .bib-key { color: var(--accent2); }
+    .bib-field { color: var(--accent); }
+    .bib-val { color: var(--accent3); }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 3rem 2rem;
+      font-size: 0.78rem;
+      color: var(--text-dimmer);
+      line-height: 1.8;
+    }
+    footer a { color: var(--text-dim); text-decoration: none; }
+    footer a:hover { color: var(--accent); }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      .metrics-row { grid-template-columns: 1fr; }
+      .comparison-grid { grid-template-columns: repeat(3, 1fr); }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <span class="nav-logo">FG 2026</span>
+    <div class="nav-links">
+      <a href="#abstract">Abstract</a>
+      <a href="#method">Method</a>
+      <a href="#results">Results</a>
+      <a href="#bibtex">BibTeX</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" style="padding-top:7rem; max-width:100%;">
+  <div class="hero-bg"></div>
+
+  <div class="venue-badge">FG 2026 &nbsp;·&nbsp; IEEE International Conference on Automatic Face and Gesture Recognition</div>
+
+  <h1 class="paper-title">
+    Anthropometrically Accurate Human Mesh Reconstruction via Body-Structured NeRF for Vision-Based Analysis
+  </h1>
+
+  <div class="authors">
+    <span class="author">Huining Liang<sup>1</sup></span>
+    <span class="author">Chandra Kambhamettu<sup>1</sup></span>
+  </div>
+
+  <p class="affiliation">
+    <sup>1</sup> Department of Computer and Information Sciences, University of Delaware
+  </p>
+
+  <div class="btn-row">
+    <a class="btn btn-primary" href="#"><i class="fas fa-file-pdf"></i> Paper</a>
+    <a class="btn btn-secondary" href="#"><i class="fab fa-github"></i> Code (coming soon)</a>
+    <a class="btn btn-secondary" href="#"><i class="fas fa-database"></i> Dataset</a>
+    <a class="btn btn-secondary" href="#bibtex"><i class="fas fa-quote-left"></i> BibTeX</a>
+  </div>
+
+  <!-- Teaser -->
+  <div class="teaser" style="animation: fadeUp 0.6s 0.5s ease both; opacity:0;">
+    <div class="teaser-placeholder">
+      <i class="fas fa-person-rays"></i>
+      <span>Teaser figure — replace with your result image</span>
+    </div>
+    <div class="teaser-caption">
+      Our pipeline reconstructs anthropometrically accurate 3D human body meshes with high-quality textures from multi-view RGB images. Results are compatible with standard graphics software and hardware.
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ABSTRACT -->
+<section id="abstract">
+  <p class="section-label reveal">Abstract</p>
+  <h2 class="section-title reveal">Overview</h2>
+  <div class="abstract-box reveal">
+    <p>
+      We propose a novel framework for reconstructing anthropometrically accurate 3D human body meshes from multi-view RGB images, targeting applications in human analysis and vision-based understanding. While Neural Radiance Fields (NeRFs) have demonstrated impressive results in 3D reconstruction, their implicit representations are not directly compatible with standard 3D modeling workflows or downstream tasks.
+    </p>
+    <p style="margin-top:1rem;">
+      Our method addresses this limitation by introducing a body-structure-guided NeRF that captures detailed geometry and appearance from multi-view imagery. From the learned NeRF, we extract spatial features to construct a coarse textured mesh, which is subsequently refined to achieve high anthropometric fidelity. Experimental results demonstrate that our approach generates high-quality textured meshes with precise human body geometry, outperforming existing methods in both visual realism and measurement accuracy.
+    </p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- METHOD -->
+<section id="method">
+  <p class="section-label reveal">Method</p>
+  <h2 class="section-title reveal">Framework Overview</h2>
+  <p class="reveal">Our two-stage pipeline first trains a body-structure-guided NeRF from multi-view images, then extracts and refines an explicit textured mesh through differentiable rendering and iterative face-density optimization.</p>
+
+  <div class="figure-block reveal">
+    <div class="figure-placeholder">
+      <i class="fas fa-diagram-project"></i>
+      <span>Pipeline diagram — place Figure 2 here</span>
+    </div>
+    <p class="figure-caption">
+      <strong>Figure 2.</strong> Overview of our framework. A NeRF is trained from multi-view human body images to obtain an implicit 3D representation. Color and density features are decomposed and processed by an appearance model and a geometry model. The refined human body mesh is then validated via 3D body measurement.
+    </p>
+  </div>
+
+  <!-- Key components -->
+  <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap:1rem; margin-top:2rem;">
+    <div class="result-card reveal" style="padding:1.5rem;">
+      <div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:0.8rem;">
+        <div style="width:36px;height:36px;background:rgba(126,184,247,0.1);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+          <i class="fas fa-bone" style="color:var(--accent);font-size:0.9rem;"></i>
+        </div>
+        <strong style="font-size:0.9rem;color:var(--text);">Body-Structure NeRF</strong>
+      </div>
+      <p style="font-size:0.82rem;margin:0;">Skeleton pose embedding and silhouette supervision guide geometry learning, reducing ambiguity from complex articulations.</p>
+    </div>
+    <div class="result-card reveal" style="padding:1.5rem;">
+      <div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:0.8rem;">
+        <div style="width:36px;height:36px;background:rgba(167,139,250,0.1);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+          <i class="fas fa-palette" style="color:var(--accent2);font-size:0.9rem;"></i>
+        </div>
+        <strong style="font-size:0.9rem;color:var(--text);">Appearance Decomposition</strong>
+      </div>
+      <p style="font-size:0.82rem;margin:0;">View-independent diffuse and view-dependent specular components are separated, enabling standard RGB texture export and real-time rendering.</p>
+    </div>
+    <div class="result-card reveal" style="padding:1.5rem;">
+      <div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:0.8rem;">
+        <div style="width:36px;height:36px;background:rgba(52,211,153,0.1);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+          <i class="fas fa-layer-group" style="color:var(--accent3);font-size:0.9rem;"></i>
+        </div>
+        <strong style="font-size:0.9rem;color:var(--text);">Iterative Mesh Refinement</strong>
+      </div>
+      <p style="font-size:0.82rem;margin:0;">Rendering-error-driven face subdivision and decimation adaptively improves mesh quality while reducing storage footprint.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- RESULTS -->
+<section id="results">
+  <p class="section-label reveal">Results</p>
+  <h2 class="section-title reveal">Quantitative Evaluation</h2>
+
+  <div class="metrics-row reveal">
+    <div class="metric-card">
+      <div class="metric-value">5.77</div>
+      <div class="metric-label">Chamfer Distance ↓<br>People Snapshot</div>
+      <div class="metric-badge">BEST</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value">94.87%</div>
+      <div class="metric-label">Anthropometric<br>Accuracy (avg)</div>
+      <div class="metric-badge">BEST</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value">27.85</div>
+      <div class="metric-label">PSNR ↑<br>People Snapshot</div>
+      <div class="metric-badge">BEST</div>
+    </div>
+  </div>
+
+  <!-- Table 1: Chamfer Distance -->
+  <h3 style="font-size:0.9rem;color:var(--text);margin-bottom:0.8rem;" class="reveal">Geometric Reconstruction (Chamfer Distance ↓)</h3>
+  <div class="table-wrap reveal">
+    <table>
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th class="arrow">People Snapshot</th>
+          <th class="arrow">SynBody</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>NeuS</td><td>15.64</td><td>19.32</td></tr>
+        <tr><td>NVdiffrec</td><td>21.37</td><td>24.74</td></tr>
+        <tr><td>Neural Body</td><td>10.95</td><td>13.29</td></tr>
+        <tr><td>HumanNeRF</td><td>8.13</td><td>10.68</td></tr>
+        <tr class="ours"><td>Ours</td><td class="best">5.77</td><td class="best">7.36</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Table 2+3: Rendering -->
+  <h3 style="font-size:0.9rem;color:var(--text);margin-bottom:0.8rem;margin-top:2rem;" class="reveal">Rendering Quality — People Snapshot</h3>
+  <div class="table-wrap reveal">
+    <table>
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th class="arrow-up">SSIM ↑</th>
+          <th class="arrow-up">PSNR ↑</th>
+          <th class="arrow">LPIPS ↓</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>NVdiffrec</td><td>0.921</td><td>20.91</td><td>0.083</td></tr>
+        <tr><td>MobileNeRF</td><td>0.937</td><td>24.52</td><td>0.079</td></tr>
+        <tr><td>Neural Body</td><td>0.941</td><td>25.88</td><td>0.073</td></tr>
+        <tr><td>HumanNeRF</td><td>0.943</td><td>26.49</td><td>0.070</td></tr>
+        <tr class="ours"><td>Ours</td><td class="best">0.949</td><td class="best">27.85</td><td class="best">0.066</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Qualitative -->
+  <h2 class="section-title reveal" style="margin-top:3rem;">Qualitative Comparison</h2>
+  <p class="reveal">Comparison of geometric reconstruction quality across methods. Our approach recovers body structures with higher fidelity especially in complex topology regions.</p>
+
+  <div class="comparison-grid reveal">
+    <div class="comp-col">
+      <div class="comp-header">NeuS</div>
+      <div class="comp-img"><i class="fas fa-image"></i></div>
+      <div class="comp-img"><i class="fas fa-image"></i></div>
+      <div class="comp-img"><i class="fas fa-image"></i></div>
+    </div>
+    <div class="comp-col">
+      <div class="comp-header">NVdiffrec</div>
+      <div class="comp-img"><i class="fas fa-image"></i></div>
+      <div class="comp-img"><i class="fas fa-image"></i></div>
+      <div class="comp-img"><i class="fas fa-image"></i></div>
+    </div>
+    <div class="comp-col">
+      <div class="comp-header">Neural Body</div>
+      <div class="comp-img"><i class="fas fa-image"></i></div>
+      <div class="comp-img"><i class="fas fa-image"></i></div>
+      <div class="comp-img"><i class="fas fa-image"></i></div>
+    </div>
+    <div class="comp-col">
+      <div class="comp-header">HumanNeRF</div>
+      <div class="comp-img"><i class="fas fa-image"></i></div>
+      <div class="comp-img"><i class="fas fa-image"></i></div>
+      <div class="comp-img"><i class="fas fa-image"></i></div>
+    </div>
+    <div class="comp-col">
+      <div class="comp-header ours-label">Ours</div>
+      <div class="comp-img" style="border-color:rgba(126,184,247,0.25);"><i class="fas fa-image"></i></div>
+      <div class="comp-img" style="border-color:rgba(126,184,247,0.25);"><i class="fas fa-image"></i></div>
+      <div class="comp-img" style="border-color:rgba(126,184,247,0.25);"><i class="fas fa-image"></i></div>
+    </div>
+    <div class="comp-col">
+      <div class="comp-header">GT</div>
+      <div class="comp-img"><i class="fas fa-image"></i></div>
+      <div class="comp-img"><i class="fas fa-image"></i></div>
+      <div class="comp-img"><i class="fas fa-image"></i></div>
+    </div>
+  </div>
+  <p style="font-size:0.78rem;color:var(--text-dimmer);text-align:center;margin-top:0.5rem;">Replace placeholder boxes above with your Figure 5 &amp; 6 image crops.</p>
+
+  <!-- Anthropometric -->
+  <h2 class="section-title reveal" style="margin-top:3rem;">Anthropometric Accuracy</h2>
+  <p class="reveal">We validate against ground-truth measurements from 5 real subjects collected via 3D scanner and tape measurement. Our method achieves <strong style="color:var(--accent);">94.87% average accuracy</strong> with a coefficient of variation of only 7.18%, outperforming both SMPL-X (88.35%) and SHAPY (90.95%).</p>
+
+  <div class="table-wrap reveal">
+    <table>
+      <thead>
+        <tr>
+          <th>Measurement</th>
+          <th>Ground Truth</th>
+          <th class="ours-label" style="color:var(--accent)">Ours</th>
+          <th>SMPL-X</th>
+          <th>SHAPY</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Head Width</td><td>19.21±2.15</td><td class="best">18.91±2.36</td><td>17.39±3.97</td><td>17.82±3.03</td></tr>
+        <tr><td>Neck Width</td><td>13.73±1.87</td><td class="best">13.98±1.95</td><td>12.40±1.89</td><td>12.89±2.03</td></tr>
+        <tr><td>Shoulder Width</td><td>41.92±4.59</td><td class="best">42.66±5.87</td><td>39.72±5.95</td><td>40.98±5.63</td></tr>
+        <tr><td>Right Upper Arm</td><td>31.38±3.97</td><td class="best">31.96±4.19</td><td>29.03±4.47</td><td>30.58±4.36</td></tr>
+        <tr><td>Right Thigh</td><td>44.95±5.18</td><td class="best">43.89±5.03</td><td>42.90±5.93</td><td>43.93±5.68</td></tr>
+        <tr class="ours"><td><strong>Avg Accuracy</strong></td><td>—</td><td class="best"><strong>94.87±6.81</strong></td><td>88.35±8.93</td><td>90.95±7.67</td></tr>
+        <tr class="ours"><td><strong>CoV (%)</strong></td><td>—</td><td class="best"><strong>7.18</strong></td><td>10.11</td><td>8.43</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- BIBTEX -->
+<section id="bibtex">
+  <p class="section-label reveal">Citation</p>
+  <h2 class="section-title reveal">BibTeX</h2>
+  <p class="reveal">If you find our work helpful, please cite:</p>
+  <div class="bibtex-block reveal">
+    <div class="bibtex-header">
+      <span>bibtex</span>
+      <button class="copy-btn" onclick="copyBib()"><i class="far fa-copy"></i> Copy</button>
+    </div>
+    <pre id="bibtex-content"><span class="bib-key">@inproceedings</span>{liang2026anthropometrically,
+  <span class="bib-field">title</span>     = {<span class="bib-val">Anthropometrically Accurate Human Mesh Reconstruction
+               via Body-Structured NeRF for Vision-Based Analysis</span>},
+  <span class="bib-field">author</span>    = {<span class="bib-val">Liang, Huining and Kambhamettu, Chandra</span>},
+  <span class="bib-field">booktitle</span> = {<span class="bib-val">2026 IEEE International Conference on Automatic
+               Face and Gesture Recognition (FG)</span>},
+  <span class="bib-field">year</span>      = {<span class="bib-val">2026</span>},
+  <span class="bib-field">organization</span> = {<span class="bib-val">IEEE</span>}
+}</pre>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 Huining Liang, Chandra Kambhamettu &nbsp;·&nbsp; University of Delaware</p>
+  <p style="margin-top:0.4rem;">
+    Website template inspired by <a href="https://nerfies.github.io" target="_blank">Nerfies</a>.
+    &nbsp;·&nbsp;
+    <a href="mailto:hliang@udel.edu">Contact</a>
+  </p>
+</footer>
+
+<script>
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Fix hero teaser animation (opacity:0 set inline)
+  setTimeout(() => {
+    document.querySelector('.teaser').style.animation = 'fadeUp 0.6s ease forwards';
+  }, 500);
+
+  // Copy BibTeX
+  function copyBib() {
+    const raw = `@inproceedings{liang2026anthropometrically,
+  title     = {Anthropometrically Accurate Human Mesh Reconstruction via Body-Structured NeRF for Vision-Based Analysis},
+  author    = {Liang, Huining and Kambhamettu, Chandra},
+  booktitle = {2026 IEEE International Conference on Automatic Face and Gesture Recognition (FG)},
+  year      = {2026},
+  organization = {IEEE}
+}`;
+    navigator.clipboard.writeText(raw).then(() => {
+      const btn = document.querySelector('.copy-btn');
+      btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+      btn.style.color = 'var(--accent3)';
+      setTimeout(() => {
+        btn.innerHTML = '<i class="far fa-copy"></i> Copy';
+        btn.style.color = '';
+      }, 2000);
+    });
+  }
+</script>
+</body>
+</html>
