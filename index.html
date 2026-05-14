@@ -556,24 +556,21 @@
     <span class="author">Chandra Kambhamettu<sup>2</sup></span>
   </div>
 
-<p class="affiliation">
-  <sup>1</sup> Department of Computer and Information Sciences, University of Delaware<br>
-  <sup>2</sup> Bellini College of Artificial Intelligence, Cybersecurity and Computing, University of South Florida
-</p>
+  <p class="affiliation">
+    <sup>1</sup> Department of Computer and Information Sciences, University of Delaware<br>
+    <sup>2</sup> Bellini College of Artificial Intelligence, Cybersecurity and Computing, University of South Florida
+  </p>
 
   <div class="btn-row">
     <a class="btn btn-primary" href="#"><i class="fas fa-file-pdf"></i> Paper</a>
     <a class="btn btn-secondary" href="#"><i class="fab fa-github"></i> Code (coming soon)</a>
-    <!-- <a class="btn btn-secondary" href="#"><i class="fas fa-database"></i> Dataset</a> -->
+    <a class="btn btn-secondary" href="#"><i class="fas fa-database"></i> Dataset</a>
     <a class="btn btn-secondary" href="#bibtex"><i class="fas fa-quote-left"></i> BibTeX</a>
   </div>
 
   <!-- Teaser -->
   <div class="teaser" style="animation: fadeUp 0.6s 0.5s ease both; opacity:0;">
-    <div class="teaser-placeholder">
-      <i class="fas fa-person-rays"></i>
-      <span>Teaser figure — replace with your result image</span>
-    </div>
+    <img src="static/images/teaser.png" alt="Teaser: reconstructed human body meshes" style="width:100%; display:block;">
     <div class="teaser-caption">
       Our pipeline reconstructs anthropometrically accurate 3D human body meshes with high-quality textures from multi-view RGB images. Results are compatible with standard graphics software and hardware.
     </div>
@@ -605,10 +602,7 @@
   <p class="reveal">Our two-stage pipeline first trains a body-structure-guided NeRF from multi-view images, then extracts and refines an explicit textured mesh through differentiable rendering and iterative face-density optimization.</p>
 
   <div class="figure-block reveal">
-    <div class="figure-placeholder">
-      <i class="fas fa-diagram-project"></i>
-      <span>Pipeline diagram — place Figure 2 here</span>
-    </div>
+    <img src="static/images/pipeline.png" alt="Framework overview" style="width:100%; display:block;">
     <p class="figure-caption">
       <strong>Figure 2.</strong> Overview of our framework. A NeRF is trained from multi-view human body images to obtain an implicit 3D representation. Color and density features are decomposed and processed by an appearance model and a geometry model. The refined human body mesh is then validated via 3D body measurement.
     </p>
@@ -718,45 +712,12 @@
   <h2 class="section-title reveal" style="margin-top:3rem;">Qualitative Comparison</h2>
   <p class="reveal">Comparison of geometric reconstruction quality across methods. Our approach recovers body structures with higher fidelity especially in complex topology regions.</p>
 
-  <div class="comparison-grid reveal">
-    <div class="comp-col">
-      <div class="comp-header">NeuS</div>
-      <div class="comp-img"><i class="fas fa-image"></i></div>
-      <div class="comp-img"><i class="fas fa-image"></i></div>
-      <div class="comp-img"><i class="fas fa-image"></i></div>
-    </div>
-    <div class="comp-col">
-      <div class="comp-header">NVdiffrec</div>
-      <div class="comp-img"><i class="fas fa-image"></i></div>
-      <div class="comp-img"><i class="fas fa-image"></i></div>
-      <div class="comp-img"><i class="fas fa-image"></i></div>
-    </div>
-    <div class="comp-col">
-      <div class="comp-header">Neural Body</div>
-      <div class="comp-img"><i class="fas fa-image"></i></div>
-      <div class="comp-img"><i class="fas fa-image"></i></div>
-      <div class="comp-img"><i class="fas fa-image"></i></div>
-    </div>
-    <div class="comp-col">
-      <div class="comp-header">HumanNeRF</div>
-      <div class="comp-img"><i class="fas fa-image"></i></div>
-      <div class="comp-img"><i class="fas fa-image"></i></div>
-      <div class="comp-img"><i class="fas fa-image"></i></div>
-    </div>
-    <div class="comp-col">
-      <div class="comp-header ours-label">Ours</div>
-      <div class="comp-img" style="border-color:rgba(126,184,247,0.25);"><i class="fas fa-image"></i></div>
-      <div class="comp-img" style="border-color:rgba(126,184,247,0.25);"><i class="fas fa-image"></i></div>
-      <div class="comp-img" style="border-color:rgba(126,184,247,0.25);"><i class="fas fa-image"></i></div>
-    </div>
-    <div class="comp-col">
-      <div class="comp-header">GT</div>
-      <div class="comp-img"><i class="fas fa-image"></i></div>
-      <div class="comp-img"><i class="fas fa-image"></i></div>
-      <div class="comp-img"><i class="fas fa-image"></i></div>
-    </div>
+  <div class="figure-block reveal">
+    <img src="static/images/comparison.png" alt="Geometric reconstruction comparison: NeuS, NVdiffrec, Neural Body, HumanNeRF, Ours, Ground Truth" style="width:100%; display:block;">
+    <p class="figure-caption">
+      <strong>Figure 5.</strong> Geometric reconstruction quality comparison. (a) NeuS &nbsp;(b) NVdiffrec &nbsp;(c) Neural Body &nbsp;(d) HumanNeRF &nbsp;(e) Ours &nbsp;(f) Ground Truth. Our approach recovers body structures with higher fidelity, especially in complex topology regions.
+    </p>
   </div>
-  <p style="font-size:0.78rem;color:var(--text-dimmer);text-align:center;margin-top:0.5rem;">Replace placeholder boxes above with your Figure 5 &amp; 6 image crops.</p>
 
   <!-- Anthropometric -->
   <h2 class="section-title reveal" style="margin-top:3rem;">Anthropometric Accuracy</h2>
