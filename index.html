@@ -568,11 +568,18 @@
     <a class="btn btn-secondary" href="#bibtex"><i class="fas fa-quote-left"></i> BibTeX</a>
   </div>
 
-  <!-- Teaser -->
+  <!-- Video -->
   <div class="teaser" style="animation: fadeUp 0.6s 0.5s ease both; opacity:0;">
-    <img src="static/images/teaser.png" alt="Teaser: reconstructed human body meshes" style="width:100%; display:block;">
+    <div style="position:relative; width:100%; aspect-ratio:16/9; background:#0d0f14; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem; color:var(--text-dim);">
+      <!-- 视频上传后替换下面这个占位符，取消注释并填入文件名 -->
+      <!-- <video width="100%" controls style="display:block;">
+        <source src="static/videos/demo.mp4" type="video/mp4">
+      </video> -->
+      <i class="fas fa-circle-play" style="font-size:3.5rem; color:var(--accent); opacity:0.5;"></i>
+      <span style="font-size:0.85rem;">讲解视频即将上线</span>
+    </div>
     <div class="teaser-caption">
-      Our pipeline reconstructs anthropometrically accurate 3D human body meshes with high-quality textures from multi-view RGB images. Results are compatible with standard graphics software and hardware.
+      Video presentation — a concise walkthrough of our method and results.
     </div>
   </div>
 </section>
@@ -591,7 +598,14 @@
       Our method addresses this limitation by introducing a body-structure-guided NeRF that captures detailed geometry and appearance from multi-view imagery. From the learned NeRF, we extract spatial features to construct a coarse textured mesh, which is subsequently refined to achieve high anthropometric fidelity. Experimental results demonstrate that our approach generates high-quality textured meshes with precise human body geometry, outperforming existing methods in both visual realism and measurement accuracy.
     </p>
   </div>
-</section>
+
+  <!-- Teaser image moved here -->
+  <div class="figure-block reveal" style="margin-top:2rem;">
+    <img src="static/images/teaser.png" alt="Teaser: reconstructed human body meshes" style="width:100%; display:block;">
+    <p class="figure-caption">
+      <strong>Figure 1.</strong> Our pipeline reconstructs anthropometrically accurate 3D human body meshes with high-quality textures from multi-view RGB images. Results are compatible with standard graphics software and hardware. (Faces are masked to protect subject identity.)
+    </p>
+  </div>
 
 <div class="divider"></div>
 
